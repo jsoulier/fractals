@@ -1,0 +1,62 @@
+#pragma clang diagnostic ignored "-Wmissing-prototypes"
+
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct uniformBuffer
+{
+    float2 center;
+    uint2 viewport;
+    float zoom;
+};
+
+struct main0_out
+{
+    float4 outColor [[color(0)]];
+};
+
+static inline __attribute__((always_inline))
+int getIterations(thread float4& gl_FragCoord, constant uniformBuffer& _25)
+{
+    float real = ((((gl_FragCoord.x / float(_25.viewport.x)) - 0.5) * _25.zoom) + _25.center.x) * 4.0;
+    float imag = ((((gl_FragCoord.y / float(_25.viewport.y)) - 0.5) * _25.zoom) + _25.center.y) * 4.0;
+    int iterations = 0;
+    float constReal = real;
+    float constImag = imag;
+    while (iterations < 1000)
+    {
+        float tmpReal = real;
+        real = ((real * real) - (imag * imag)) + constReal;
+        imag = ((2.0 * tmpReal) * imag) + constImag;
+        float dist = (real * real) + (imag * imag);
+        if (dist > 4.0)
+        {
+            break;
+        }
+        iterations++;
+    }
+    return iterations;
+}
+
+fragment main0_out main0(constant uniformBuffer& _25 [[buffer(0)]], float4 gl_FragCoord [[position]])
+{
+    main0_out out = {};
+    int iterations = getIterations(gl_FragCoord, _25);
+    if (iterations == 1000)
+    {
+        out.outColor = float4(0.0, 0.0, 0.0, 1.0);
+        return out;
+    }
+    float t = float(iterations) / 1000.0;
+    float hue = 0.699999988079071044921875 + (10.0 * t);
+    float saturation = 1.0;
+    float value = 1.0;
+    float4 k = float4(1.0, 0.666666686534881591796875, 0.3333333432674407958984375, 3.0);
+    float3 p = abs((fract(float3(hue) + k.xyz) * 6.0) - k.www);
+    float3 color = mix(float3(1.0), fast::clamp(p - float3(1.0), float3(0.0), float3(1.0)), float3(saturation)) * value;
+    out.outColor = float4(color, 1.0);
+    return out;
+}
+

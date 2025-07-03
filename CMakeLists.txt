@@ -11,7 +11,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${BINARY_DIR})
 make_directory(${BINARY_DIR})
 
 add_subdirectory(SDL)
-add_executable(mandelbrot main.cpp shader.cpp)
+add_executable(mandelbrot WIN32 main.cpp shader.cpp)
 set_target_properties(mandelbrot PROPERTIES CXX_STANDARD 23)
 target_link_libraries(mandelbrot PRIVATE SDL3::SDL3)
 

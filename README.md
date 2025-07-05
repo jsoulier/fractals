@@ -5,6 +5,8 @@
 
 Simple Mandelbrot Set viewer using SDL3 GPU
 
+### Building
+
 #### Windows
 
 Install the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/) for glslc
@@ -21,10 +23,6 @@ cd bin
 ```
 
 #### Linux
-
-```bash
-sudo apt install glslc
-```
 
 ```bash
 git clone https://github.com/jsoulier/mandelbrot --recurse-submodules

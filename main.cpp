@@ -15,6 +15,7 @@ struct
     float centerY{0.0f};
     uint32_t width{1};
     uint32_t height{1};
+    uint32_t type{0};
     float zoom{1.0f};
 }
 static state;
@@ -25,14 +26,14 @@ static SDL_GPUGraphicsPipeline* pipeline;
 
 static bool Init()
 {
-    SDL_SetAppMetadata("Mandelbrot Set", nullptr, nullptr);
+    SDL_SetAppMetadata("Fractals", nullptr, nullptr);
     SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
         return false;
     }
-    window = SDL_CreateWindow("Mandelbrot Set", 1000, 1000, SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow("Fractals", 1000, 1000, SDL_WINDOW_RESIZABLE);
     if (!window)
     {
         SDL_Log("Failed to create window: %s", SDL_GetError());
@@ -152,6 +153,12 @@ int main(int argc, char** argv)
             {
             case SDL_EVENT_QUIT:
                 running = false;
+                break;
+            case SDL_EVENT_KEY_DOWN:
+                if (event.key.scancode == SDL_SCANCODE_SPACE)
+                {
+                    state.type = (state.type + 1) % 5;
+                }
                 break;
             }
         }

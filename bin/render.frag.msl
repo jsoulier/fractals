@@ -9,6 +9,7 @@ struct uniformBuffer
 {
     float2 center;
     uint2 viewport;
+    uint type;
     float zoom;
 };
 
@@ -18,10 +19,8 @@ struct main0_out
 };
 
 static inline __attribute__((always_inline))
-int getIterations(thread float4& gl_FragCoord, constant uniformBuffer& _25)
+int GetMandelbrotIterations(thread float& real, thread float& imag)
 {
-    float real = ((((gl_FragCoord.x / float(_25.viewport.x)) - 0.5) * _25.zoom) + _25.center.x) * 4.0;
-    float imag = ((((gl_FragCoord.y / float(_25.viewport.y)) - 0.5) * _25.zoom) + _25.center.y) * 4.0;
     int iterations = 0;
     float constReal = real;
     float constImag = imag;
@@ -30,8 +29,7 @@ int getIterations(thread float4& gl_FragCoord, constant uniformBuffer& _25)
         float tmpReal = real;
         real = ((real * real) - (imag * imag)) + constReal;
         imag = ((2.0 * tmpReal) * imag) + constImag;
-        float dist = (real * real) + (imag * imag);
-        if (dist > 4.0)
+        if (((real * real) + (imag * imag)) > 4.0)
         {
             break;
         }
@@ -40,10 +38,154 @@ int getIterations(thread float4& gl_FragCoord, constant uniformBuffer& _25)
     return iterations;
 }
 
-fragment main0_out main0(constant uniformBuffer& _25 [[buffer(0)]], float4 gl_FragCoord [[position]])
+static inline __attribute__((always_inline))
+int GetJuliaIterations(thread float& real, thread float& imag)
+{
+    int iterations = 0;
+    float constReal = -0.699999988079071044921875;
+    float constImag = 0.270150005817413330078125;
+    while (iterations < 1000)
+    {
+        float tmpReal = real;
+        real = ((real * real) - (imag * imag)) + constReal;
+        imag = ((2.0 * tmpReal) * imag) + constImag;
+        if (((real * real) + (imag * imag)) > 4.0)
+        {
+            break;
+        }
+        iterations++;
+    }
+    return iterations;
+}
+
+static inline __attribute__((always_inline))
+int GetMultibrot3Iterations(thread float& real, thread float& imag)
+{
+    int iterations = 0;
+    float constReal = real;
+    float constImag = imag;
+    while (iterations < 1000)
+    {
+        float real2 = real * real;
+        float imag2 = imag * imag;
+        float newReal = ((real * real2) - ((3.0 * real) * imag2)) + constReal;
+        float newImag = (((3.0 * real2) * imag) - (imag * imag2)) + constImag;
+        real = newReal;
+        imag = newImag;
+        if (((real * real) + (imag * imag)) > 4.0)
+        {
+            break;
+        }
+        iterations++;
+    }
+    return iterations;
+}
+
+static inline __attribute__((always_inline))
+int GetPhoenixIterations(thread float& real, thread float& imag)
+{
+    int iterations = 0;
+    float constReal = -0.5;
+    float constImag = 0.0;
+    float p = -0.5;
+    float oldImag = 0.0;
+    while (iterations < 1000)
+    {
+        float tmpReal = real;
+        float newReal = ((real * real) - (imag * imag)) + constReal;
+        float newImag = (((2.0 * tmpReal) * imag) + constImag) + (p * oldImag);
+        oldImag = imag;
+        real = newReal;
+        imag = newImag;
+        if (((real * real) + (imag * imag)) > 4.0)
+        {
+            break;
+        }
+        iterations++;
+    }
+    return iterations;
+}
+
+static inline __attribute__((always_inline))
+int GetNewtonIterations(thread float& real, thread float& imag)
+{
+    int iterations = 0;
+    while (iterations < 1000)
+    {
+        float r2 = real * real;
+        float i2 = imag * imag;
+        float fReal = (real * (r2 - (3.0 * i2))) - 1.0;
+        float fImag = imag * ((3.0 * r2) - i2);
+        float fpReal = 3.0 * (r2 - i2);
+        float fpImag = (6.0 * real) * imag;
+        float denom = (fpReal * fpReal) + (fpImag * fpImag);
+        if (denom == 0.0)
+        {
+            break;
+        }
+        float newReal = real - (((fReal * fpReal) + (fImag * fpImag)) / denom);
+        float newImag = imag - (((fImag * fpReal) - (fReal * fpImag)) / denom);
+        float diff = ((newReal - real) * (newReal - real)) + ((newImag - imag) * (newImag - imag));
+        real = newReal;
+        imag = newImag;
+        if (diff < 9.9999997473787516355514526367188e-05)
+        {
+            break;
+        }
+        iterations++;
+    }
+    return iterations;
+}
+
+fragment main0_out main0(constant uniformBuffer& _366 [[buffer(0)]], float4 gl_FragCoord [[position]])
 {
     main0_out out = {};
-    int iterations = getIterations(gl_FragCoord, _25);
+    float real = ((((gl_FragCoord.x / float(_366.viewport.x)) - 0.5) * _366.zoom) + _366.center.x) * 4.0;
+    float imag = ((((gl_FragCoord.y / float(_366.viewport.y)) - 0.5) * _366.zoom) + _366.center.y) * 4.0;
+    int iterations = 1000;
+    switch (_366.type)
+    {
+        case 0u:
+        {
+            float param = real;
+            float param_1 = imag;
+            int _413 = GetMandelbrotIterations(param, param_1);
+            iterations = _413;
+            break;
+        }
+        case 1u:
+        {
+            float param_2 = real;
+            float param_3 = imag;
+            int _419 = GetJuliaIterations(param_2, param_3);
+            iterations = _419;
+            break;
+        }
+        case 2u:
+        {
+            float param_4 = real;
+            float param_5 = imag;
+            int _425 = GetMultibrot3Iterations(param_4, param_5);
+            iterations = _425;
+            break;
+        }
+        case 3u:
+        {
+            float param_6 = real;
+            float param_7 = imag;
+            int _431 = GetPhoenixIterations(param_6, param_7);
+            iterations = _431;
+            break;
+        }
+        case 4u:
+        {
+            float param_8 = real;
+            float param_9 = imag;
+            int _437 = GetNewtonIterations(param_8, param_9);
+            iterations = _437;
+            break;
+        }
+    }
     if (iterations == 1000)
     {
         out.outColor = float4(0.0, 0.0, 0.0, 1.0);

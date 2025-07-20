@@ -1,9 +1,9 @@
-# Mandelbrot
+# Fractals
 
 ![](image1.png)
 ![](image2.png)
 
-Simple Mandelbrot Set viewer using SDL3 GPU
+Fractals using SDL3 GPU
 
 ### Building
 
@@ -12,27 +12,27 @@ Simple Mandelbrot Set viewer using SDL3 GPU
 Install the [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/) for glslc
 
 ```bash
-git clone https://github.com/jsoulier/mandelbrot --recurse-submodules
-cd mandelbrot
+git clone https://github.com/jsoulier/fractals --recurse-submodules
+cd fractals
 mkdir build
 cd build
 cmake ..
 cmake --build . --parallel 8 --config Release
 cd bin
-./mandelbrot.exe
+./fractals.exe
 ```
 
 #### Linux
 
 ```bash
-git clone https://github.com/jsoulier/mandelbrot --recurse-submodules
-cd mandelbrot
+git clone https://github.com/jsoulier/fractals --recurse-submodules
+cd fractals
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --parallel 8
 cd bin
-./mandelbrot
+./fractals
 ```
 
 ### References
